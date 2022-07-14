@@ -11,12 +11,16 @@ class MainScreen extends StatelessWidget {
       ),
       body: LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
-        if (constraints.maxWidth <= 600) {
+        if (constraints.maxWidth <= 520) {
+          return KostListView();
+        } else if (constraints.maxWidth <= 768) {
           return KostGrid(gridCount: 2);
+        } else if (constraints.maxWidth <= 1000) {
+          return KostGrid(gridCount: 3);
         } else if (constraints.maxWidth <= 1200) {
           return KostGrid(gridCount: 4);
         } else {
-          return KostGrid(gridCount: 6);
+          return KostGrid(gridCount: 4);
         }
       }),
     );
@@ -47,11 +51,28 @@ class KostGrid extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Expanded(
-                        child: Image.asset(
-                      kostData.thumbnail,
-                      fit: BoxFit.cover,
-                    )),
+                    Stack(
+                      children: [
+                        Expanded(
+                            child: Image.asset(
+                          kostData.thumbnail,
+                          fit: BoxFit.cover,
+                        )),
+                        Padding(
+                          padding: const EdgeInsets.all(4.0),
+                          child: Container(
+                            child: Text(
+                              kostData.status,
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            decoration: BoxDecoration(
+                                color: Colors.blueGrey,
+                                borderRadius: BorderRadius.circular(10)),
+                            padding: EdgeInsets.all(3.0),
+                          ),
+                        ),
+                      ],
+                    ),
                     SizedBox(
                       height: 8,
                     ),
@@ -85,16 +106,6 @@ class KostGrid extends StatelessWidget {
                         ),
                         Column(
                           children: [
-                            Container(
-                              child: Text(
-                                kostData.status,
-                                style: TextStyle(color: Colors.white),
-                              ),
-                              decoration: BoxDecoration(
-                                  color: Colors.blueGrey,
-                                  borderRadius: BorderRadius.circular(10)),
-                              padding: EdgeInsets.all(3.0),
-                            ),
                             Text(
                               kostData.price,
                               style: TextStyle(color: Colors.green),
@@ -110,6 +121,78 @@ class KostGrid extends StatelessWidget {
           }).toList(),
         ),
       ),
+    );
+  }
+}
+
+class KostListView extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemBuilder: (context, index) {
+        final KostData kostData = kostDataList[index];
+        return InkWell(
+          onTap: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return DetailScreen(
+                kostData: kostData,
+              );
+            }));
+          },
+          child: Card(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Expanded(
+                    flex: 1,
+                    child: Stack(
+                      children: [
+                        Image.asset(kostData.thumbnail),
+                        Padding(
+                          padding: const EdgeInsets.all(4.0),
+                          child: Container(
+                            child: Text(
+                              kostData.status,
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            decoration: BoxDecoration(
+                                color: Colors.blueGrey,
+                                borderRadius: BorderRadius.circular(10)),
+                            padding: EdgeInsets.all(3.0),
+                          ),
+                        ),
+                      ],
+                    )),
+                Expanded(
+                  flex: 2,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Text(
+                          kostData.name,
+                          style: TextStyle(fontSize: 16.0),
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        Text(kostData.location),
+                        Text(
+                          kostData.price,
+                          style: TextStyle(color: Colors.green),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+      itemCount: kostDataList.length,
     );
   }
 }
